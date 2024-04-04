@@ -1,8 +1,8 @@
 {
-  "name": "com.g-konvini.sdftools",
-  "displayName": "G-Konvini Signed Distance Field Tools",
+  "name": "com.g-konvini.sdftool",
+  "displayName": "G-Konvini Signed Distance Field Tool",
   "version": "1.0.0",
-  "description": "Signed Distance Field Tools",
+  "description": "Signed Distance Field Tool",
   "unity": "2021.3",
 
   "dependencies": {},
