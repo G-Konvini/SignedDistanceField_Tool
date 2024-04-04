@@ -1,0 +1,58 @@
+#pragma kernel CombineSDF
+#include "SDF_Input.hlsl"
+
+StructuredBuffer<SDFParams> _SDF_Params;
+int _SDF_Count;
+RWTexture2D<half> _Result;
+
+float InverLerp(float A, float B, float T)
+{
+    return (T - A)/(B - A);
+}
+
+float LinearStep(float A, float B, float T)
+{
+    return saturate(InverLerp(A, B, T));
+}
+
+float Remap(float In, float2 InMinMax, float2 OutMinMax)
+{
+    return OutMinMax.x + (In - InMinMax.x) * (OutMinMax.y - OutMinMax.x) / (InMinMax.y - InMinMax.x);
+}
+
+#define MIX_SDF(num) \
+    param = _SDF_Params[(num) - 1];\
+    A = B;\
+    B = _SDF_MAP_##num[id].x;\
+    M0 = M1;\
+    M1 = _Raw_MAP_##num[id];\
+    l = LinearStep(A, B, 0.5);\
+    sdf += saturate(Remap(l, float2(0, 1), float2(param.valueFrom, param.valueTo))) * saturate(M0 - M1);\
+    if (_SDF_Count == (num + 1))\
+    {\
+        _Result[id] = sdf;\
+        return;\
+    }\
+
+#define MIX_SDF_4(num0, num1, num2, num3) MIX_SDF(num0); MIX_SDF(num1); MIX_SDF(num2); MIX_SDF(num3);
+#define MIX_SDF_5(num0, num1, num2, num3, num4) MIX_SDF(num0); MIX_SDF(num1); MIX_SDF(num2); MIX_SDF(num3); MIX_SDF(num4);
+
+
+[numthreads(8,8,1)]
+void CombineSDF (uint2 id : SV_DispatchThreadID)
+{
+    float sdf = 0;
+    float l = 0;
+    SDFParams param = (SDFParams)0;
+    float A = 0;
+    float B = _SDF_MAP_0[id].x;
+    float M0 = 0;
+    float M1 = _Raw_MAP_0[id].x;
+
+    MIX_SDF_4(1, 2, 3, 4)
+    MIX_SDF_5(5, 6, 7, 8, 9)
+    MIX_SDF_5(10, 11, 12, 13, 14)
+    MIX_SDF_5(15, 16, 17, 18, 19)
+    MIX_SDF_5(20, 21, 22, 23, 24)
+    MIX_SDF_5(25, 26, 27, 28, 29)
+}

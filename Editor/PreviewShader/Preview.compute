@@ -1,0 +1,20 @@
+#pragma kernel Preview
+
+Texture2D<float> _Source;
+bool _StepView;
+float _Step;
+RWTexture2D<float4> _Result;
+
+
+[numthreads(8,8,1)]
+void Preview (uint2 id : SV_DispatchThreadID)
+{
+    float4 col;
+    col.rgb = _Source[id];
+    if(_StepView)
+    {
+        col.rgb = step(_Step, col).xxx;
+    }
+    col.a = 1;
+    _Result[id.xy] = col;
+}
