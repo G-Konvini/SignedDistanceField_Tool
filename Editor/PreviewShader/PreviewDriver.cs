@@ -1,4 +1,7 @@
-﻿using G_Konvini.SDFTools.Editor.ShaderUtil;
+﻿// Copyright (c) 2024.4 G-Konvini. All rights reserved
+// Author: Takeshi
+
+using G_Konvini.SDFTools.Editor.ShaderUtil;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 

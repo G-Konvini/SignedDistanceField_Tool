@@ -1,10 +1,13 @@
-﻿using System.IO;
+﻿// Copyright (c) 2024.4 G-Konvini. All rights reserved
+// Author: Takeshi
+
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 
 namespace G_Konvini.SDFTools.Editor.ImageIO
 {
-    internal class ImageExporter
+    internal static class ImageExporter
     {
         public static void ExportImage(EditorCacheData data)
         {

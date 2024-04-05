@@ -1,3 +1,6 @@
+// Copyright (c) 2024.4 G-Konvini. All rights reserved
+// Author: Takeshi
+
 using System;
 using UnityEditor;
 using UnityEngine;

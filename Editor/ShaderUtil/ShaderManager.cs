@@ -1,3 +1,5 @@
+// Copyright (c) 2024.4 G-Konvini. All rights reserved
+// Author: Takeshi
 
 namespace G_Konvini.SDFTools.Editor.ShaderUtil
 {

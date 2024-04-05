@@ -1,3 +1,6 @@
+// Copyright (c) 2024.4 G-Konvini. All rights reserved
+// Author: Takeshi
+
 using System.Collections.Generic;
 using G_Konvini.SDFTools.Editor.ShaderUtil;
 using UnityEngine;
@@ -50,7 +53,7 @@ namespace G_Konvini.SDFTools.Editor.CombineSDF
             SDFParams[] sdfParams = new SDFParams[count - 1]; 
             int kernel = shader.FindKernel("CombineSDF");
             float max = count - 1;
-            for (int i = 0; i < 30; i++)
+            for (int i = 0; i < 32; i++)
             {
                 if (i < count)
                 {

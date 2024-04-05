@@ -1,12 +1,16 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) 2024.4 G-Konvini. All rights reserved
+// Author: Takeshi
+
+using System;
 using System.IO;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 
 namespace G_Konvini.SDFTools.Editor.ImageIO
 {
-    internal class ImageImporter
+    internal static class ImageImporter
     {
         public static void ImportImage(EditorCacheData data)
         {
@@ -24,12 +28,16 @@ namespace G_Konvini.SDFTools.Editor.ImageIO
                 {
                     string path = AssetDatabase.GetAssetPath(image);
                     
-                    if (!CheckImageFormat(data, path))
-                        continue;
-                    
                     var bytes = File.ReadAllBytes(path);
                     Texture2D tex = new Texture2D(2, 2, GraphicsFormat.R8G8B8A8_UNorm, TextureCreationFlags.None);
-                    tex.LoadImage(bytes);
+                    tex.name = image.name;
+                    if (!tex.LoadImage(bytes))
+                    {
+                        data.inputWarning = $"{image.name} is not a *.jpg *.png image";
+                        UnityEngine.Object.DestroyImmediate(tex, true);
+                        continue;
+                    }
+                    
                     data.sectionList.Add(tex);
                     
                     if (i == 0)
@@ -39,17 +47,6 @@ namespace G_Konvini.SDFTools.Editor.ImageIO
                 }
 
             }
-        }
-
-        static bool CheckImageFormat(EditorCacheData data, string path)
-        {
-            string lowerPath = path.ToLower();
-            if (lowerPath.Contains(".png") || lowerPath.Contains(".jpg") || lowerPath.Contains(".jpeg") )
-                return true;
-
-            data.inputWarning = $"{path} is not a *.jpg or *.png image";
-            return false;
-
         }
     }
 }

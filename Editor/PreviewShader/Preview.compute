@@ -1,3 +1,6 @@
+// Copyright (c) 2024.4 G-Konvini. All rights reserved
+// Author: Takeshi
+
 #pragma kernel Preview
 
 Texture2D<float> _Source;

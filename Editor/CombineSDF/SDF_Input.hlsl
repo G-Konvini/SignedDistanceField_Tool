@@ -31,6 +31,9 @@ Texture2D<float> _Raw_MAP_26;
 Texture2D<float> _Raw_MAP_27;
 Texture2D<float> _Raw_MAP_28;
 Texture2D<float> _Raw_MAP_29;
+Texture2D<float> _Raw_MAP_30;
+Texture2D<float> _Raw_MAP_31;
+
 
 Texture2D<float> _SDF_MAP_0;
 Texture2D<float> _SDF_MAP_1;
@@ -62,6 +65,9 @@ Texture2D<float> _SDF_MAP_26;
 Texture2D<float> _SDF_MAP_27;
 Texture2D<float> _SDF_MAP_28;
 Texture2D<float> _SDF_MAP_29;
+Texture2D<float> _SDF_MAP_30;
+Texture2D<float> _SDF_MAP_31;
+
 
 struct SDFParams
 {

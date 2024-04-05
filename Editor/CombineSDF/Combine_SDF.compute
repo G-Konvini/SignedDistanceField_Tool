@@ -1,3 +1,6 @@
+// Copyright (c) 2024.4 G-Konvini. All rights reserved
+// Author: Takeshi
+
 #pragma kernel CombineSDF
 #include "SDF_Input.hlsl"
 
@@ -55,4 +58,6 @@ void CombineSDF (uint2 id : SV_DispatchThreadID)
     MIX_SDF_5(15, 16, 17, 18, 19)
     MIX_SDF_5(20, 21, 22, 23, 24)
     MIX_SDF_5(25, 26, 27, 28, 29)
+    MIX_SDF(30)
+    MIX_SDF(31)
 }

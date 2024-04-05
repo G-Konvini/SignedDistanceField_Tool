@@ -1,3 +1,6 @@
+// Copyright (c) 2024.4 G-Konvini. All rights reserved
+// Author: Takeshi
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -5,6 +8,7 @@ using G_Konvini.SDFTools.Editor.ShaderUtil;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using Debug = UnityEngine.Debug;
+using Object = UnityEngine.Object;
 
 namespace G_Konvini.SDFTools.Editor.GPUSaito1994
 {
@@ -39,9 +43,8 @@ namespace G_Konvini.SDFTools.Editor.GPUSaito1994
         
         bool CalculateSDF(List<Texture2D> rawTexs)
         {
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Restart();
-            
+            // Stopwatch stopwatch = new Stopwatch();
+            // stopwatch.Restart();
             // var stepBuffer = new ComputeBuffer(1, sizeof(uint), ComputeBufferType.IndirectArguments);
             // var step = new uint[]{0};
             // stepBuffer.SetData(step);
@@ -50,11 +53,6 @@ namespace G_Konvini.SDFTools.Editor.GPUSaito1994
             for (var i = 0; i < rawTexs.Count; i++)
             {
                 var rawTex = rawTexs[i];
-                // if (rawTex.width > 2048 || rawTex.height > 2048)
-                // {
-                //     // Debug.LogWarning("Texture Size is larger than 2048!");
-                //     // return false;
-                // }
                 RenderSingleSDFTexture(rawTex, shader, i);
             }
 
@@ -71,7 +69,8 @@ namespace G_Konvini.SDFTools.Editor.GPUSaito1994
 
             RenderTexture sdf = CreatRenderTexture(rawTex, GraphicsFormat.R16_UNorm);
             _sdfTex.Add(sdf);
-            
+
+            PreProcess(shader, rawTex, rowDist);
             CalculateDistancePerRows(shader, rawTex, rowDist);
             CalculateDistance(shader, rawTex, rowDist, sdf, sdfId);
         }
@@ -86,13 +85,20 @@ namespace G_Konvini.SDFTools.Editor.GPUSaito1994
             return rt;
         }
 
+        void PreProcess(ComputeShader shader, Texture2D rawTex, RenderTexture rowDist)
+        {
+            int process = shader.FindKernel("PreProcess");
+            shader.SetTexture(process, DataProcess0, rowDist);
+            shader.Dispatch(process, rawTex.width / 32, rawTex.height / 32, 1);
+        }
+        
         void CalculateDistancePerRows(ComputeShader shader, Texture2D rawTex ,RenderTexture rowDist)
         {
             int process = shader.FindKernel("Process0");
             shader.SetVector(TexSize,new Vector2(rawTex.width,rawTex.height));
             shader.SetTexture(process, DataProcess0, rowDist);
             shader.SetTexture(process, Raw, rawTex);
-            shader.Dispatch(process, 1,  rawTex.height /4, 1);
+            shader.Dispatch(process, rawTex.height / 32, 1, 1);
         }
         void CalculateDistance(ComputeShader shader, Texture2D rawTex, RenderTexture rowDist, RenderTexture sdf, int sdfId)
         {
@@ -107,6 +113,7 @@ namespace G_Konvini.SDFTools.Editor.GPUSaito1994
         
         public void Clear()
         {
+            RenderTexture.active = null;
             foreach (var texture in _rowDistances)
                 texture.Release();
             _rowDistances = null;

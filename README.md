@@ -8,4 +8,5 @@ Unity Version: 2021.3\
 Unity Menu: Tools > Signed Distance Field Tool
 
 Import: *.png, *.jpg, *.jpeg\
-Export: *.png(16bit)
+Export: *.png(16bit)\
+Combine Maximum: SDF images x 32 

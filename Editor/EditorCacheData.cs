@@ -1,3 +1,6 @@
+// Copyright (c) 2024.4 G-Konvini. All rights reserved
+// Author: Takeshi
+
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -33,7 +36,6 @@ namespace G_Konvini.SDFTools.Editor
             {
                 if (!value)
                     step = 0.5f;
-                
                 _stepView = value;
             }
         }
@@ -121,12 +123,6 @@ namespace G_Konvini.SDFTools.Editor
                     warnings = $"The size of Texture: {tex.name} is less than 32! please make sure that the texture size is between the 32 to 2048";
                     return false;
                 }
-                
-                if (width > 2048 || height > 2048)
-                {
-                    warnings = $"The size of Texture: {tex.name} is greater than 2048! please make sure that the texture size is between the 32 to 2048";
-                    return false;
-                }
 
                 if ((width & (width - 1)) != 0 || (height & (height - 1)) != 0)
                 {
@@ -156,9 +152,9 @@ namespace G_Konvini.SDFTools.Editor
                 return false;
             }
 
-            if (sdfList.Count > 30)
+            if (sdfList.Count > 32)
             {
-                warnings = $"The count of Sections is greater than 30";
+                warnings = $"The count of Sections is greater than 32";
                 return false;
             }
 

@@ -1,6 +1,8 @@
+// Copyright (c) 2024.4 G-Konvini. All rights reserved
 // Algorithm Refer: Saito and Toriwaki [1994]
-// Program Author: Takeshi [2022]
+// Author: Takeshi
 
+#pragma kernel PreProcess
 #pragma kernel Process0
 #pragma kernel Process1
 
@@ -10,53 +12,65 @@ uniform Texture2D _Raw;
 uniform RWTexture2D<float2> _DataProcess0;
 uniform RWTexture2D<half> _Result;
 
-[numthreads(1,4,1)]
+[numthreads(32,32,1)]
+void PreProcess(uint2 id : SV_DispatchThreadID)
+{
+    _DataProcess0[id] = float2(999999,999999);
+}
+
+[numthreads(32,2,1)]
 void Process0 (uint2 id : SV_DispatchThreadID)
 {
-    float2 sdpr[2042]; /* Sqared distance Per Rows */
     uint size = _TexSize.x;
     float2 d = float2(999999,999999);
-    float2 sqr_d = float2(0,0);
+    float2 sqr_d;
 
-    for (uint i = 0; i < size; ++i)
+    if (id.y < 1)
     {
-        float raw = _Raw[uint2(i,id.y)].x;
-        if (raw < 1)
+        for (uint i = 0; i < size; ++i)
         {
-            d.x = raw > 0? raw : 0;
-            
-            d.y += 1 - raw;
-            sdpr[i] = float2(0,d.y * d.y);
-        }
-        else
-        {
-            d.x += 1;
-            sdpr[i] = float2(d.x * d.x,0);
-            
-            d.y = 0;
+            float raw = _Raw[uint2(i,id.x)].x;
+            if (raw < 1)
+            {
+                d.x = raw > 0? raw : 0;
+                
+                d.y += 1 - raw;
+                sqr_d = float2(d.x, d.y * d.y);
+            }
+            else
+            {
+                d.x += 1;
+                sqr_d = float2(d.x * d.x, 0);
+                
+                d.y = 0;
+            }
+            const float2 row_dist = _DataProcess0[uint2(i,id.x)];
+            _DataProcess0[uint2(i,id.x)] = min(sqr_d, row_dist);
         }
     }
-
-    d = float2(999999,999999);
-    for (int j = size - 1; j >= 0; --j)
+    else
     {
-        float raw = _Raw[uint2(j,id.y)].x;
-        
-        if (raw < 1)
+        for (int j = size - 1; j >= 0; --j)
         {
-            d.x = raw > 0? raw : 0;
+            float raw = _Raw[uint2(j,id.x)].x;
             
-            d.y += 1 - raw;
-            sqr_d.y = d.y * d.y;
+            if (raw < 1)
+            {
+                d.x = raw > 0? raw : 0;
+                
+                d.y += 1 - raw;
+                sqr_d = float2(d.x, d.y * d.y);
+            }
+            else
+            {
+                d.x += 1;
+                sqr_d = float2(d.x * d.x, 0);
+                
+                d.y = 0;
+            }
+            const float2 row_dist = _DataProcess0[uint2(j,id.x)];
+            _DataProcess0[uint2(j,id.x)] = min(sqr_d, row_dist);
         }
-        else
-        {
-            d.x += 1;
-            sqr_d.x = d.x * d.x;
-            
-            d.y = 0;
-        }
-        _DataProcess0[uint2(j,id.y)] = float2(min(sqr_d.x,sdpr[j].x), min(sqr_d.y,sdpr[j].y));
     }
 }
 
@@ -83,4 +97,5 @@ void Process1 (uint2 id : SV_DispatchThreadID)
     {
         _Result[id] = (0.5 - sqrt(min_sqr_d.y)/(size * 2 / _Scale ));
     }
+    
 }
