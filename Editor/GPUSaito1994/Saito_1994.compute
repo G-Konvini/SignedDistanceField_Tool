@@ -2,7 +2,6 @@
 // Algorithm Refer: Saito and Toriwaki [1994]
 // Author: Takeshi
 
-#pragma kernel PreProcess
 #pragma kernel Process0
 #pragma kernel Process1
 
@@ -12,66 +11,57 @@ uniform Texture2D _Raw;
 uniform RWTexture2D<float2> _DataProcess0;
 uniform RWTexture2D<half> _Result;
 
-[numthreads(32,32,1)]
-void PreProcess(uint2 id : SV_DispatchThreadID)
-{
-    _DataProcess0[id] = float2(999999,999999);
-}
-
-[numthreads(32,2,1)]
+[numthreads(32,1,1)]
 void Process0 (uint2 id : SV_DispatchThreadID)
 {
     uint size = _TexSize.x;
     float2 d = float2(999999,999999);
     float2 sqr_d;
-
-    if (id.y < 1)
+    
+    for (uint i = 0; i < size; ++i)
     {
-        for (uint i = 0; i < size; ++i)
+        float raw = _Raw[uint2(i,id.x)].x;
+        if (raw < 1)
         {
-            float raw = _Raw[uint2(i,id.x)].x;
-            if (raw < 1)
-            {
-                d.x = raw > 0? raw : 0;
-                
-                d.y += 1 - raw;
-                sqr_d = float2(d.x, d.y * d.y);
-            }
-            else
-            {
-                d.x += 1;
-                sqr_d = float2(d.x * d.x, 0);
-                
-                d.y = 0;
-            }
-            const float2 row_dist = _DataProcess0[uint2(i,id.x)];
-            _DataProcess0[uint2(i,id.x)] = min(sqr_d, row_dist);
-        }
-    }
-    else
-    {
-        for (int j = size - 1; j >= 0; --j)
-        {
-            float raw = _Raw[uint2(j,id.x)].x;
+            d.x = raw > 0? raw : 0;
             
-            if (raw < 1)
-            {
-                d.x = raw > 0? raw : 0;
-                
-                d.y += 1 - raw;
-                sqr_d = float2(d.x, d.y * d.y);
-            }
-            else
-            {
-                d.x += 1;
-                sqr_d = float2(d.x * d.x, 0);
-                
-                d.y = 0;
-            }
-            const float2 row_dist = _DataProcess0[uint2(j,id.x)];
-            _DataProcess0[uint2(j,id.x)] = min(sqr_d, row_dist);
+            d.y += 1 - raw;
+            sqr_d = float2(d.x, d.y * d.y);
         }
+        else
+        {
+            d.x += 1;
+            sqr_d = float2(d.x * d.x, 0);
+            
+            d.y = 0;
+        }
+        _DataProcess0[uint2(i,id.x)] = sqr_d;
+        AllMemoryBarrier();
     }
+    
+    for (int j = size - 1; j >= 0; --j)
+    {
+        float raw = _Raw[uint2(j,id.x)].x;
+        
+        if (raw < 1)
+        {
+            d.x = raw > 0? raw : 0;
+            
+            d.y += 1 - raw;
+            sqr_d = float2(d.x, d.y * d.y);
+        }
+        else
+        {
+            d.x += 1;
+            sqr_d = float2(d.x * d.x, 0);
+            
+            d.y = 0;
+        }
+        const float2 row_dist = _DataProcess0[uint2(j,id.x)];
+        _DataProcess0[uint2(j,id.x)] = min(sqr_d, row_dist);
+        AllMemoryBarrier();
+    }
+    
 }
 
 [numthreads(32,32,1)]

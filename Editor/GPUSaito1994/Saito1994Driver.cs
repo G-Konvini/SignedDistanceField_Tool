@@ -69,8 +69,7 @@ namespace G_Konvini.SDFTools.Editor.GPUSaito1994
 
             RenderTexture sdf = CreatRenderTexture(rawTex, GraphicsFormat.R16_UNorm);
             _sdfTex.Add(sdf);
-
-            PreProcess(shader, rawTex, rowDist);
+            
             CalculateDistancePerRows(shader, rawTex, rowDist);
             CalculateDistance(shader, rawTex, rowDist, sdf, sdfId);
         }
@@ -83,13 +82,6 @@ namespace G_Konvini.SDFTools.Editor.GPUSaito1994
             rt.Create();
             rt.name = rawTex.name;
             return rt;
-        }
-
-        void PreProcess(ComputeShader shader, Texture2D rawTex, RenderTexture rowDist)
-        {
-            int process = shader.FindKernel("PreProcess");
-            shader.SetTexture(process, DataProcess0, rowDist);
-            shader.Dispatch(process, rawTex.width / 32, rawTex.height / 32, 1);
         }
         
         void CalculateDistancePerRows(ComputeShader shader, Texture2D rawTex ,RenderTexture rowDist)
