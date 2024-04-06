@@ -30,14 +30,16 @@ namespace G_Konvini.SDFTools.Editor.ImageIO
                     
                     var bytes = File.ReadAllBytes(path);
                     Texture2D tex = new Texture2D(2, 2, GraphicsFormat.R8G8B8A8_UNorm, TextureCreationFlags.None);
-                    tex.name = image.name;
                     if (!tex.LoadImage(bytes))
                     {
-                        data.inputWarning = $"{image.name} is not a *.jpg *.png image";
-                        UnityEngine.Object.DestroyImmediate(tex, true);
-                        continue;
+                        if (!TGAImageUtil.Load(out tex, path))
+                        {
+                            data.inputWarning = $"{image.name} is not a *.jpg, *.png, *.tga(Uncompressed) image";
+                            continue;
+                        }
                     }
                     
+                    tex.name = image.name;
                     data.sectionList.Add(tex);
                     
                     if (i == 0)
@@ -49,4 +51,7 @@ namespace G_Konvini.SDFTools.Editor.ImageIO
             }
         }
     }
+    
+   
+    
 }
