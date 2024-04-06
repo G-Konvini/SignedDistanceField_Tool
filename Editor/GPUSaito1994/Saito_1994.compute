@@ -21,6 +21,7 @@ void Process0 (uint2 id : SV_DispatchThreadID)
     for (uint i = 0; i < size; ++i)
     {
         float raw = _Raw[uint2(i,id.x)].x;
+        
         if (raw < 1)
         {
             d.x = raw > 0? raw : 0;
